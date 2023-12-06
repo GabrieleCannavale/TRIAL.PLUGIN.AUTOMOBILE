@@ -22,7 +22,33 @@ namespace TRIAL.PLUGIN.AUTOMOBILE
 
             IOrganizationService service = serviceFactory.CreateOrganizationService(context.UserId);
 
+            try
+            {
+                if (context.InputParameters.Contains("Target") && context.InputParameters["Target"] is Entity)
+                {
+                    Entity target = (Entity)context.InputParameters["Target"];
+                    
+                    //fumag_dataimmatricolazione
+                    if (target.Contains("fumag_dataimmatricolazione"))
+                    {
+                        DateTime dataImm = target.GetAttributeValue<DateTime>("fumag_dataimmatricolazione");
+                        tracingService.Trace($"data immatricolazione: {dataImm.Date}");
+                        if (dataImm != DateTime.MinValue)
+                        {
+                            if (dataImm.Date < DateTime.Now.Date)
+                            {
+                                throw new Exception("La Data di immatricolazione deve essere maggiore o uguale a quella di oggi");
+                            }
+                        }
+                    }
+                }
 
+            }
+            catch (Exception e)
+            {
+
+                throw new InvalidPluginExecutionException($"ERRORE PLUGIN PreCreate: {e.Message}");
+            }
         }
     }
 }
